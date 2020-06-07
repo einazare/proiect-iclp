@@ -32,12 +32,12 @@ public class Client {
       try (OutputStream output = connection.getOutputStream()) {
         output.write(query.getBytes(charset));
       }
-
+      
       InputStream response = connection.getInputStream();
 
       try (Scanner scanner = new Scanner(response)) {
-          String responseBody = scanner.useDelimiter("\\A").next();
-          System.out.println(responseBody);
+        String responseBody = scanner.useDelimiter("\\A").next();
+        System.out.println(responseBody);
       }
 
       // new ReadThread(socket, this).start();
