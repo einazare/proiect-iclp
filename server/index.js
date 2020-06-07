@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 
 // api routes
 app.post("/", (req,res,next) => {
-  console.log(req);
+  console.log(req.body.message);
   res.status(200).send("Recieved your request")
 });
 
