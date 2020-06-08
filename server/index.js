@@ -1,7 +1,60 @@
 const net = require("net");
 
 // constant for a deck of cards
-const deck = ["1R", "2R", "3R", "4R", "5R", "6R", "7R", "8R", "9R", "10R", "11R", "12R", "13R","1G", "2G", "3G", "4G", "5G", "6G", "7G", "8G", "9G", "10G", "11G", "12G", "13G","1A", "2A", "3A", "4A", "5A", "6A", "7A", "8A", "9A", "10A", "11A", "12A", "13A","1V", "2V", "3V", "4V", "5V", "6V", "7V", "8V", "9V", "10V", "11V", "12V", "13V"];
+const deck = [
+  "1R",
+  "2R",
+  "3R",
+  "4R",
+  "5R",
+  "6R",
+  "7R",
+  "8R",
+  "9R",
+  "10R",
+  "11R",
+  "12R",
+  "13R",
+  "1G",
+  "2G",
+  "3G",
+  "4G",
+  "5G",
+  "6G",
+  "7G",
+  "8G",
+  "9G",
+  "10G",
+  "11G",
+  "12G",
+  "13G",
+  "1A",
+  "2A",
+  "3A",
+  "4A",
+  "5A",
+  "6A",
+  "7A",
+  "8A",
+  "9A",
+  "10A",
+  "11A",
+  "12A",
+  "13A",
+  "1V",
+  "2V",
+  "3V",
+  "4V",
+  "5V",
+  "6V",
+  "7V",
+  "8V",
+  "9V",
+  "10V",
+  "11V",
+  "12V",
+  "13V"
+];
 
 // this will keep the clien sokets
 let sockets = [];
@@ -28,9 +81,9 @@ let rooms = {};
 // // // // => cardType = 2; winType = 3
 // getWinType([ '2R', '2A', '2V', '2G', '11A', '10R' ]);
 // // // // => cardType = 2; winType = 4
-const getWinType = (array) => {
-  let simpleArray = array.map(item => parseInt(item.replace(/[RGAV]/g,"")));
-  let numberOfCards = [0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+const getWinType = array => {
+  let simpleArray = array.map(item => parseInt(item.replace(/[RGAV]/g, "")));
+  let numberOfCards = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
   simpleArray.forEach(item => {
     numberOfCards[item] = numberOfCards[item] + 1;
   });
@@ -45,8 +98,8 @@ const getWinType = (array) => {
   return {
     winType: winType,
     cardType: cardType
-  }
-}
+  };
+};
 
 // function that "shuffles"/re-orders an array
 // example:
@@ -55,50 +108,74 @@ const getWinType = (array) => {
 // [1,2,3,4]
 // // // => [3,2,4,1]
 // ...
-const shuffle = (array) => {
-    var ctr = array.length, temp, index;
-    while (ctr > 0) {
-        index = Math.floor(Math.random() * ctr);
-        ctr--;
-        temp = array[ctr];
-        array[ctr] = array[index];
-        array[index] = temp;
-    }
-    return array;
-}
+const shuffle = array => {
+  var ctr = array.length,
+    temp,
+    index;
+  while (ctr > 0) {
+    index = Math.floor(Math.random() * ctr);
+    ctr--;
+    temp = array[ctr];
+    array[ctr] = array[index];
+    array[index] = temp;
+  }
+  return array;
+};
 
-// function that returns an array containg players sub-arrays of 6 values
-// along with the winning type and card winning number
+// function that returns an object containg players sub-arrays of 6 values
+// along with the winning type and card winning number and the biggest win type
+// and a number of those winners
 // example:
-// getCards(["1R", "2R", "3R", "4R", "5R", "6R", "7R", "8R", "9R", "10R", "11R", "12R", "13R","1G", "2G", "3G", "4G", "5G", "6G", "7G", "8G", "9G", "10G", "11G", "12G", "13G","1A", "2A", "3A", "4A", "5A", "6A", "7A", "8A", "9A", "10A", "11A", "12A", "13A","1V", "2V", "3V", "4V", "5V", "6V", "7V", "8V", "9V", "10V", "11V", "12V", "13V"], 3)
-// // // => [ {cards: ["1R", "2R", "3R", "4R", "5R", "6R"], winType: 0, cardType: 0}, {cards: ["7R", "8R", "9R", "10R", "11R", "12R"], winType: 0, cardType: 0}, {cards: ["13R","1G", "2G", "3G", "4G", "5G"], winType: 0, cardType: 0} ]
-//
-// example 2 - for better understanding
-// getCards(["1R", "1G", "1A", "4R", "5R", "6R", "7R"], 1)
-// // // =>
-// // // [{
-// // //   cards: ["1R", "1G", "1A", "4R", "5R", "6R"]
-// // //   winType: 3,
-// // //   cardType: 1
-// // // }]
+// getCards(
+//   ["1R","2R","3R","4R","5R","6R","7R","8R","9R","10R","11R","12R","13R","1G","2G","3G","4G","5G","6G","7G","8G","9G","10G","11G","12G","13G","1A","2A","3A","4A","5A","6A","7A","8A","9A","10A","11A","12A","13A","1V","2V","3V","4V","5V","6V","7V","8V","9V","10V","11V","12V","13V"],
+//   3
+// );
+// // // will return =>
+// // // {
+// // //   playerCards: [
+// // //     { cards: ["1R", "2R", "3R", "4R", "5R", "6R"], winType: 0, cardType: 0 },
+// // //     { cards: ["7R", "8R", "9R", "10R", "11R", "12R"], winType: 0, cardType: 0 },
+// // //     { cards: ["13R", "1G", "2G", "3G", "4G", "5G"], winType: 0, cardType: 0 }
+// // //   ],
+// // //   biggestWin: {winType: 0, cardType: 0},
+// // //   numberOfWinners: 0
+// // // }
 
-const getCards = (array,players) => {
+const getCards = (array, players) => {
   let cardsArray = [];
+  let biggestWin = {
+    winType: 0,
+    cardType: 0
+  };
+  let numberOfWinners = 0;
   for (var i = 0; i < players; i++) {
     let playerCards = array.slice(players * i, players * i + 6);
-    console.log({
-      cards: playerCards,
-      ...getWinType(playerCards)
-    });
+    let winType = getWinType(playerCards);
+    if (
+      winType.winType !== 0 &&
+      (winType.winType > biggestWin.winType ||
+        (winType.winType === biggestWin.winType &&
+          winType.cardType > biggestWin.cardType))
+    ) {
+      biggestWin = winType;
+      numberOfWinners = 1;
+    } else if (winType.winType !== 0 && (winType.winType === biggestWin.winType &&
+      winType.cardType === biggestWin.cardType)) {
+      numberOfWinners = numberOfWinners + 1;
+    }
     cardsArray.push({
       cards: playerCards,
-      ...getWinType(playerCards)
+      ...winType
     });
   }
-  return cardsArray;
-}
+  return {
+    playerCards: cardsArray,
+    biggestWin: biggestWin,
+    numberOfWinners: numberOfWinners
+  };
+};
 
-getCards(shuffle(deck),6);
+console.log(getCards(shuffle(deck), 6));
 
 //
 // const start_game = (room) => {
