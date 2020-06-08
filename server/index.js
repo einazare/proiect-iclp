@@ -110,7 +110,6 @@ const server = net
               };
               socket.write("OK\n");
             }
-            console.log(rooms.room1.players);
           } catch (e) {
             socket.write("ERROR " + e + "\n");
           }
