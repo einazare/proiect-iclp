@@ -20,17 +20,11 @@ public class ReadThread extends Thread {
   }
 
   public void run() {
+    System.out.println(reader != null);
     while (true) {
       try {
         String response = reader.readLine();
-        if(response != null){
-          System.out.println("\n" + response);
-
-          // prints the username after displaying the server's message
-          if (client.getUserName() != null) {
-            System.out.print("[" + client.getUserName() + "]: ");
-          }
-        }
+        System.out.println("\n" + response);
       } catch (IOException ex) {
         System.out.println("Error reading from server: " + ex.getMessage());
         ex.printStackTrace();
