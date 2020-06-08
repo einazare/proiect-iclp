@@ -23,23 +23,12 @@ public class WriteThread extends Thread {
 
     Console console = System.console();
 
-    String userName = console.readLine("\nEnter your name: ");
-    client.setUserName(userName);
-    writer.println(userName);
-
     String text;
 
     do {
-      text = console.readLine("[" + userName + "]: ");
+      text = console.readLine();
       writer.println(text);
 
-    } while (!text.equals("bye"));
-
-    try {
-      socket.close();
-    } catch (IOException ex) {
-
-      System.out.println("Error writing to server: " + ex.getMessage());
-    }
+    } while (true);
   }
 }
