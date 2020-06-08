@@ -1,40 +1,129 @@
-// with express
-const express = require("express");
-// const router = express.Router();
-const bodyParser = require("body-parser");
+const net = require("net");
 
-const app = express();
+let sockets = [];
 
-// router.post("/", (req,res,next) => {
-//   console.log(req.body);
-// })
+let rooms = {};
 
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
+const server = net
+  .createServer(socket => {
+    let socketID = Math.random()
+      .toString()
+      .substring(2, 10);
+    sockets.push({
+      socket: socket,
+      id: socketID
+    });
+    socket.on("data", data => {
+      let message = data.toString();
+      let details = message.replace("\n", "").split(" ");
+      switch (details[0]) {
+        case "CREATE_ROOM":
+          try {
+            if (rooms[details[1]]) {
+              throw new Error("Room allready exists");
+            } else {
+              rooms = {
+                ...rooms,
+                [details[1]]: {
+                  min_bet: parseInt(details[2]),
+                  game_started: false,
+                  game_round: 1,
+                  players: []
+                }
+              };
+              socket.write("OK\n");
+            }
+          } catch (e) {
+            socket.write("ERROR " + e + "\n");
+          }
+          break;
+        case "JOIN_ROOM":
+          try {
+            if (rooms[details[1]]) {
+              let players = rooms[details[1]].players;
+              let bet = rooms[details[1]].min_bet;
+              players.push({
+                socket: socket,
+                id: socketID,
+                bet: bet
+              });
+              rooms = {
+                ...rooms,
+                [details[1]]: {
+                  ...rooms[details[1]],
+                  players: players
+                }
+              };
+              socket.write("OK\n");
+            } else {
+              throw new Error("Room does not exist");
+            }
+          } catch (e) {
+            socket.write("ERROR " + e + "\n");
+          }
+          break;
+        case "LEAVE_ROOM":
+          try {
+            if (rooms[details[1]]) {
+              let players = rooms[details[1]].players.filter(
+                item => item.id !== socketID
+              );
+              rooms = {
+                ...rooms,
+                [details[1]]: {
+                  ...rooms[details[1]],
+                  players: players
+                }
+              };
+              socket.write("OK\n");
+            } else {
+              throw new Error("Room does not exist");
+            }
+          } catch (e) {
+            socket.write("ERROR " + e + "\n");
+          }
+          break;
+        case "BET":
+          try {
+            if (rooms[details[1]] === undefined) {
+              throw new Error("Room does not exist");
+            } else if (rooms[details[1]].min_bet > parseInt(details[2])) {
+              throw new Error("Number of credits is too small");
+            } else {
+              let players = rooms[details[1]].players.map(item => {
+                if (item.id === socketID) {
+                  return {
+                    socket: socket,
+                    id: socketID,
+                    bet: parseInt(details[2])
+                  };
+                } else {
+                  return item;
+                }
+              });
+              rooms = {
+                ...rooms,
+                [details[1]]: {
+                  ...rooms[details[1]],
+                  players: players
+                }
+              };
+              socket.write("OK\n");
+            }
+            console.log(rooms.room1.players);
+          } catch (e) {
+            socket.write("ERROR " + e + "\n");
+          }
+          break;
+        default:
+          break;
+      }
+    });
+  })
+  .on("error", err => {
+    console.log(err);
+  });
 
-// api routes
-app.post("/", (req,res,next) => {
-  console.log(req.body.message);
-  res.status(200).send("Recieved your request")
+server.listen(3000, () => {
+  console.log("opened server on", server.address().port);
 });
-
-let port = 3000
-
-// start server
-const server = app.listen(port, function() {
-  console.log("Server listening on port " + port);
-});
-
-// simple node
-// const http = require('http');
-//
-// let server = http.createServer(function(req,res){
-//   let url = req.url;
-//   console.log();
-//   res.writeHead(200, {"Content-Type": "text/plain"});
-//   res.end("Hey ninjas");
-// });
-//
-// server.listen(3000, "127.0.0.1");
-//
-// console.log("started server");
