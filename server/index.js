@@ -92,6 +92,7 @@ const startGame = (room) => {
       // and reset room - players need to enter the room again
       rooms[room] = {
         min_bet: rooms[room].min_bet,
+        game_started: false,
         players: []
       }
     } else {
@@ -127,6 +128,7 @@ const server = net
                 ...rooms,
                 [details[1]]: {
                   min_bet: parseInt(details[2]),
+                  game_started: false,
                   players: []
                 }
               };
@@ -149,7 +151,8 @@ const server = net
                 id: socketID,
                 bet: 0
               });
-              if (players.length > 1) {
+              if (players.length > 1 && !rooms[details[1]].game_started) {
+                rooms[details[1]].game_started = true;
                 startGame(details[1]);
               }
               rooms = {
