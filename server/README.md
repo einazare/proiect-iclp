@@ -21,7 +21,7 @@ Daca mesajul de la client incepe cu:
   - Daca mesajul este formatat corect atunci serverul va crea in obiectul `rooms` o camera noua cu detaliile din mesaj, va adauga acestei noi camere un array pentru toti jucatori conectati la camera respectiva (evident, va fi gol pentru inceput) si un marcator care va spune daca jocul este deja inceput sau nu (pentru cazul in care un jucator se conecteaza la camera in timp ce este deja pornit jocul, jocul sa nu porneasca de doua ori)
 - **JOIN_ROOM**
   - Daca mesajul nu este sub forma `JOIN_ROOM room_name` (cu un `room_name` corect) serverul va trimite o eroare catre client
-  - Daca mesajul este formatat corect atunci serverul va modifica in obiectul `rooms` si va adauga in array-ul pentru jucatori clientul care a trimis mesajul acesta, in plus, daca numarul de jucatori a ajuns acum sa fie 2 (sau mai mare) si jocul nu este pornit, atunci se cheama functia [startGame](startGame) care va porni un nou joc.
+  - Daca mesajul este formatat corect atunci serverul va modifica in obiectul `rooms` si va adauga in array-ul pentru jucatori clientul care a trimis mesajul acesta, in plus, daca numarul de jucatori a ajuns acum sa fie 2 (sau mai mare) si jocul nu este pornit, atunci se cheama functia [startGame](startgame) care va porni un nou joc.
 - **LEAVE_ROOM**
   - Daca mesajul nu este sub forma `LEAVE_ROOM room_name` (cu un `room_name` corect) serverul va trimite o eroare catre client
   - Daca mesajul este formatat corect atunci din camera respectiva, clientul care a cerut sa fie scos din camera va fi scos (pe baza id-ul acela unic care se creaza la conectare)
@@ -35,8 +35,8 @@ Daca mesajul de la client incepe cu:
 #### startGame
 
 Este o functie care primeste numele unei camere si incepe jocul pentru aceasta.
-In primul rand (pentru prima runda) seteaza fiecarui jucator cartile si tipul de castig folosind [setAndSendCards](setAndSendCards).
-Apoi, la fiecare 30 de secunde (asta de 3 ori se repeta - 3 runde), apeleaza functia [sendWinLost](sendWinLost), iar daca aceasta a fost ultima runda, reseteaza camera (sterge jucatorii si seteaza marcatorul ca fiind un joc neinceput), in caz contrar apeleaza din nou functia [setAndSendCards](setAndSendCards) pentru setarea fiecarui jucator cartile si tipul de castig.
+In primul rand (pentru prima runda) seteaza fiecarui jucator cartile si tipul de castig folosind [setAndSendCards](setandsendcards).
+Apoi, la fiecare 30 de secunde (asta de 3 ori se repeta - 3 runde), apeleaza functia [sendWinLost](sendWinLost), iar daca aceasta a fost ultima runda, reseteaza camera (sterge jucatorii si seteaza marcatorul ca fiind un joc neinceput), in caz contrar apeleaza din nou functia [setAndSendCards](setandsendcards) pentru setarea fiecarui jucator cartile si tipul de castig.
 
 #### setAndSendCards
 
