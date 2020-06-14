@@ -11,10 +11,6 @@ const shuffle = require('./shuffle.js');
 // along with the winning type and card winning number and the biggest win type
 // and a number of those winners
 const getCards = require("./get-cards.js");
-
-console.log(getCards(shuffle(deck), 2));
-
-
 // function that sets for each player its cards
 // and it sends the message with the cards to each player
 const setAndSendCards = room => {
@@ -44,7 +40,7 @@ const setAndSendCards = room => {
     ...roomObject,
     biggestWin: biggestWin,
     numberOfWinners: numberOfWinners,
-    player: playersWithCards
+    players: playersWithCards
   };
   rooms[room] = roomObject;
 }
@@ -91,14 +87,20 @@ const startGame = (room) => {
     // for the last round
     sendWinLost(room);
     if(rounds === 3) {
+      // stop game
       clearInterval(intervalID);
+      // and reset room - players need to enter the room again
+      rooms[room] = {
+        min_bet: rooms[room].min_bet,
+        players: []
+      }
     } else {
       // next round start if not round 4
       // get cards for all the players
       // and send the cards to them
       setAndSendCards(room);
     }
-  }.bind(room), 3000);
+  }.bind(room), 30000);
 }
 
 const server = net
@@ -125,8 +127,6 @@ const server = net
                 ...rooms,
                 [details[1]]: {
                   min_bet: parseInt(details[2]),
-                  game_started: false,
-                  game_round: 1,
                   players: []
                 }
               };

@@ -28,8 +28,12 @@ module.exports = (array, players) => {
     cardType: 0
   };
   let numberOfWinners = 0;
+  let deckStart = 0;
+  let deckEnd = 6;
   for (var i = 0; i < players; i++) {
-    let playerCards = array.slice(players * i, players * i + 6);
+    let playerCards = array.slice(deckStart, deckEnd);
+    deckEnd = deckEnd + 6;
+    deckStart = deckStart + 6;
     let winType = getWinType(playerCards);
     if (
       winType.winType !== 0 &&
