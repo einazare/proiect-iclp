@@ -2,8 +2,12 @@
 
 ### Rezolvare
 
-- [Detalii client](./client/README.md).
-- [Detalii server](./server/README.md).
+- Client:
+  - [Detalii aici](./client/README.md).
+  - [Codul aici](./client)
+- Server:
+  - [Detalii aici](./server/README.md).
+  - [Codul aici](./server)
 
 ### Cerinta
 
